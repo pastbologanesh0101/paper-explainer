@@ -1,0 +1,29 @@
+Adaptive Sparse Retraining for Efficient Edge Deployment of Neural Classifiers
+
+Abstract
+
+Deploying large neural classifiers on resource-constrained edge devices remains a persistent challenge. We propose a novel Adaptive Sparse Retraining (ASR) procedure that prunes redundant weights during training rather than after it, which allows the network to recover accuracy lost to pruning within the same training run. In order to evaluate ASR, we conducted experiments on three benchmark image datasets using a Convolutional Neural Network (CNN) backbone. Our contribution is a training-time pruning schedule that requires no separate fine-tuning phase. We show that ASR achieves a 92.4% classification accuracy on the primary benchmark, a statistically significant (p<0.05) improvement of 3.1 percentage points over the standard post-training pruning baseline, while reducing model size by 61%.
+
+Introduction
+
+Modern CNN architectures achieve high accuracy but are often too large to run efficiently on edge hardware such as microcontrollers and mobile chips. A wide range of compression techniques have been proposed, including quantization, knowledge distillation, and weight pruning. Prior approaches to pruning typically remove weights after a model has already converged, which necessitates a lengthy fine-tuning phase to recover lost accuracy, and this two-stage process substantially increases total training time. In this paper, we introduce ASR, a method that interleaves pruning decisions with ordinary gradient updates so that the network never has to "recover" from pruning because it never fully commits to a weight before evaluating whether that weight is useful. We further show that ASR generalizes across datasets without per-dataset hyperparameter tuning.
+
+Related Work
+
+Prior work on model compression falls into three broad categories: pruning, quantization, and distillation. Classical magnitude pruning removes the smallest-magnitude weights after training and then fine-tunes the remaining weights, a strategy that utilizes a held-out validation set to decide when to stop fine-tuning. Quantization reduces the numerical precision of weights and activations, typically from 32-bit floating point to 8-bit integers, to shrink memory footprint. Knowledge distillation trains a small "student" network to mimic the outputs of a larger "teacher" network. Our method is complementary to quantization and distillation and can, in principle, be combined with either.
+
+Methods
+
+We evaluate ASR using a standard CNN backbone trained with stochastic gradient descent. At each training step, we compute a per-weight importance score based on the product of the weight's magnitude and its gradient magnitude, a heuristic inspired by first-order Taylor approximations of the loss. Weights whose importance score falls below an adaptive threshold are masked to zero but remain trainable, which means they are allowed to "come back" in a later step if their importance score rises above the threshold again, unlike hard pruning which permanently removes weights. The threshold itself is adjusted every epoch to target a user-specified final sparsity level, for example 60% of weights removed. We use a learning rate of 0.01 for the first 50 epochs and decay it by a factor of 10 for the remaining 20 epochs. All experiments were run with five random seeds and we report the mean and standard deviation.
+
+Results
+
+On the primary benchmark, ASR achieves 92.4% top-1 accuracy at 61% sparsity, compared to 89.3% for the standard post-training pruning baseline at the same sparsity level, a statistically significant (p<0.05) improvement. On a second, more difficult benchmark, ASR achieves 78.6% accuracy versus 74.2% for the baseline, an improvement of 4.4 percentage points. Training time with ASR was reduced by approximately 35% relative to the two-stage prune-then-fine-tune baseline, because ASR eliminates the separate fine-tuning phase entirely. We also measured inference latency on a representative edge device and found a 2.3x speedup relative to the unpruned dense model.
+
+Discussion
+
+These results demonstrate that pruning decisions made during training, rather than after it, can match or exceed the accuracy of traditional two-stage pruning while substantially reducing total training time. It is worth noting that the adaptive threshold mechanism appears to be the primary driver of ASR's advantage over fixed-schedule pruning baselines, since a fixed schedule cannot adapt to the fact that different layers become sparse-tolerant at different rates during training. We also observed that ASR's improvement is larger on the more difficult second benchmark, which suggests that adaptive pruning may be more valuable when the underlying task leaves less redundancy to exploit.
+
+Conclusion
+
+We have presented Adaptive Sparse Retraining, a training-time pruning method that removes the need for a separate fine-tuning phase while achieving higher accuracy than a standard post-training pruning baseline at equivalent sparsity. Future work will explore combining ASR with quantization to further reduce edge deployment costs.

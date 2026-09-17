@@ -1,0 +1,21 @@
+A Synthetic Dialogue Corpus for Evaluating Coreference Resolution in Multi-Party Chat
+
+Abstract
+
+Coreference resolution in multi-party chat is complicated by frequent speaker switches, overlapping topics, and informal language. We present a Synthetic Multi-party Coreference corpus (SMC) of 12,000 generated conversations annotated with gold-standard coreference chains. Our main contribution is a procedural generation pipeline that produces chat transcripts with controllable numbers of speakers, topics, and referring expressions, enabling systematic evaluation of coreference models under varying difficulty conditions. We demonstrate that a baseline Long Short-Term Memory (LSTM) model trained on SMC achieves 71.2% F1 on three-speaker conversations but drops to 52.8% F1 on six-speaker conversations, indicating that speaker count is a major driver of task difficulty.
+
+Introduction
+
+Coreference resolution, the task of determining which words and phrases refer to the same real-world entity, is a well-studied problem in single-author text such as news articles. Multi-party chat introduces additional challenges: speakers frequently use pronouns without antecedents in their own turn, several topics may be interleaved, and utterances are short, which leaves less local context for a model to use. Existing chat coreference datasets are small and drawn from a narrow set of domains, which makes it difficult to study how performance changes as conversational complexity increases. In this work, we introduce SMC, a large, procedurally generated corpus that lets researchers hold conversation length constant while varying speaker count, topic count, and referring-expression density independently. We show that this control enables a much finer-grained error analysis than prior fixed corpora allow.
+
+Methods
+
+Our generation pipeline first samples a set of entities and assigns each a small pool of referring expressions, such as a proper name, a pronoun, and a short descriptive phrase. It then samples a conversation "script" specifying which speaker mentions which entity at each turn, subject to constraints that keep the conversation locally coherent, and finally renders each scripted mention into natural-sounding chat text using a template library authored by the corpus creators, not by any external language model. We generated conversations with three, four, five, and six simulated speakers, 3,000 conversations per speaker count, and split each group 80/10/10 into train, development, and test sets. Gold coreference chains are recorded automatically from the underlying script, so annotation is exact by construction and requires no human labeling.
+
+Results
+
+A baseline LSTM model with attention over the conversation history achieves 71.2% F1 on the three-speaker test split, 64.5% F1 on the four-speaker split, 58.9% F1 on the five-speaker split, and 52.8% F1 on the six-speaker split. This steady decline, roughly 6 percentage points per additional speaker, is consistent across three random seeds with a standard deviation below 1.1 points. We also measured performance separately for pronoun mentions versus named mentions and found pronoun resolution accuracy falls from 68.3% at three speakers to 41.7% at six speakers, a much steeper drop than the 12-point decline observed for named-entity mentions over the same range, suggesting pronoun disambiguation is disproportionately harder as speaker count grows.
+
+Conclusion
+
+We have introduced SMC, a procedurally generated multi-party chat corpus that enables controlled study of how coreference difficulty scales with speaker count and other conversational factors. The corpus and generation pipeline are intended as a diagnostic tool rather than a replacement for naturally occurring chat data. Future work includes extending the generator to model topic drift explicitly.

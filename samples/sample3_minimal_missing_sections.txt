@@ -1,0 +1,17 @@
+A Lightweight Heuristic for Detecting Duplicate Bug Reports
+
+Abstract
+
+Large software projects accumulate many duplicate bug reports, which wastes triager time. We propose a lightweight heuristic that scores candidate duplicate pairs using shared error-message tokens and stack-trace overlap, without training any machine learning model. We show that this heuristic identifies 84% of true duplicate pairs in a sample of 500 manually labeled issues from three open-source projects, at a false-positive rate of 9%.
+
+Methods
+
+For each pair of open bug reports, we extract the tokens of the error message and, when present, the function names appearing in the stack trace. We compute a similarity score as the weighted sum of token overlap and stack-trace overlap, using weights of 0.4 and 0.6 respectively, chosen by a small grid search on a held-out set of 50 labeled pairs. Pairs scoring above a threshold of 0.55 are flagged as likely duplicates for a human triager to confirm.
+
+Results
+
+On our 500-pair evaluation set, the heuristic achieves 84% recall and a 9% false-positive rate, using the 0.55 threshold selected during development. Precision was 79%. Increasing the threshold to 0.65 reduced the false-positive rate to 4% but recall fell to 67%, illustrating the usual precision-recall trade-off.
+
+Conclusion
+
+A simple, training-free heuristic based on shared tokens and stack-trace overlap can flag a substantial majority of duplicate bug reports at a modest false-positive rate, making it a practical first pass before triagers review issues manually.
